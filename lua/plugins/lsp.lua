@@ -53,7 +53,7 @@ return {
           root_dir = nvim_lsp.util.root_pattern('deno.json', 'deno.jsonc'),
         },
 
-        tsserver = {
+        ts_ls = {
           capabilities = capabilities,
           root_dir = nvim_lsp.util.root_pattern 'package.json',
           single_file_support = false,
@@ -74,9 +74,14 @@ return {
         eslint = {
           capabilities = capabilities,
         },
+
         phpactor = {
           capabilities = capabilities,
         },
+
+        -- sourcekit = {
+        --   capabilities = capabilities,
+        -- },
 
         -- Go
         gopls = {
@@ -132,9 +137,6 @@ return {
           vim.keymap.set(mode.n, 'gr', vim.lsp.buf.references, opts)
         end,
       })
-
-      -- Add templ support
-      vim.filetype.add { extension = { templ = 'templ' } }
     end,
   },
   {

@@ -25,7 +25,6 @@ return {
       Color.new('violet', '#b294bb')
       Color.new('orange', '#de935f')
       Color.new('brown', '#a3685a')
-
       Color.new('seagreen', '#698b69')
       Color.new('turquoise', '#698b69')
 
@@ -35,11 +34,6 @@ return {
       Color.new('background', background_string)
       Color.new('gray0', background_string)
       Color.new('comment', comment_string)
-
-      Group.new('Normal', c.superwhite, c.gray0)
-      Group.new('Comment', c.comment, nil, s.italic)
-      Group.new('CursorLine', nil, g.normal.bg:light(0.025))
-      Group.new('StatusLine', c.softwhite, c.background, nil)
 
       Group.new('@constant', c.orange, nil, s.none)
 
@@ -62,7 +56,21 @@ return {
       Group.new('@punctuation.bracket', c.gray4)
       Group.new('@punctuation.special.vue', g.variable)
 
+      Group.new('Normal', c.superwhite, c.gray0)
+      Group.new('Comment', c.comment, nil, s.italic)
+      Group.new('CursorLine', nil, g.normal.bg:light(0.15))
+      Group.new('CursorLineNr', c.white)
+      Group.new('StatusLine', c.softwhite, c.background, nil)
       Group.new('WinSeparator', c.gray2)
+      Group.new('NormalFloat', c.white)
+      Group.new('Tooltip', c.red)
+
+      vim.schedule(function()
+        local hl_groups = { 'DiagnosticUnderlineError' }
+        for _, hl in ipairs(hl_groups) do
+          vim.cmd.highlight(hl .. ' gui=undercurl')
+        end
+      end)
     end,
   },
 }

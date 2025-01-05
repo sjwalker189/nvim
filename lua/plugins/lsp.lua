@@ -56,6 +56,10 @@ return {
         --
         -- Web Backend / Tooling
         --
+        phpactor = {
+          capabilities = capabilities,
+          root_dir = nvim_lsp.util.root_pattern 'composer.json',
+        },
 
         -- Go
         gopls = {
@@ -99,6 +103,7 @@ return {
 
       require('mason-lspconfig').setup {
         ensure_installed = vim.tbl_keys(servers),
+        automatic_installation = true,
         diagnostics = {
           underline = true,
           update_in_insert = false,

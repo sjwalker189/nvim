@@ -80,7 +80,7 @@ return {
         'scala',
         'php',
         'php_only',
-        -- 'blade',
+        'blade',
       },
       incremental_selection = {
         enable = true,
@@ -103,11 +103,21 @@ return {
     },
     ---@param opts TSConfig
     config = function(_, opts)
-      -- vim.filetype.add {
-      --   pattern = {
-      --     ['.*%.blade%.php'] = 'blade',
-      --   },
-      -- }
+      vim.filetype.add {
+        pattern = {
+          ['.*%.blade%.php'] = 'blade',
+        },
+      }
+
+      local parser_config = require('nvim-treesitter.parsers').get_parser_configs()
+      parser_config.blade = {
+        install_info = {
+          url = 'https://github.com/EmranMR/tree-sitter-blade',
+          files = { 'src/parser.c' },
+          branch = 'main',
+        },
+        filetype = 'blade',
+      }
 
       if type(opts.ensure_installed) == 'table' then
         ---@type table<string, boolean>
@@ -122,16 +132,6 @@ return {
       end
 
       require('nvim-treesitter.configs').setup(opts)
-
-      -- local parser_config = require('nvim-treesitter.parsers').get_parser_configs()
-      -- parser_config.blade = {
-      --   install_info = {
-      --     url = 'https://github.com/EmranMR/tree-sitter-blade',
-      --     files = { 'src/parser.c' },
-      --     branch = 'main',
-      --   },
-      --   filetype = 'blade',
-      -- }
     end,
   },
 }

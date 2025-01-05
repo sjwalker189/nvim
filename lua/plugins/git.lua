@@ -2,6 +2,35 @@ return {
   {
     'lewis6991/gitsigns.nvim',
     event = { 'BufReadPre', 'BufNewFile' },
+    config = function()
+      require 'colorbuddy'
+
+      local c = require('colorbuddy.color').colors
+      local Group = require('colorbuddy.group').Group
+
+      Group.new('GitSignsAdd', c.green)
+      Group.new('GitSignsChange', c.yellow)
+      Group.new('GitSignsDelete', c.red)
+
+      local signs = require 'gitsigns'
+
+      signs.setup {
+        current_line_blame = true,
+        current_line_blame_opts = {
+          virt_text_pos = 'eol',
+        },
+
+        on_attach = function(bufnr)
+          local function map(mode, l, r, opts)
+            opts = opts or {}
+            opts.buffer = bufnr
+            vim.keymap.set(mode, l, r, opts)
+          end
+
+          map('n', '<leader>gb', signs.toggle_current_line_blame)
+        end,
+      }
+    end,
   },
   {
     'kdheepak/lazygit.nvim',

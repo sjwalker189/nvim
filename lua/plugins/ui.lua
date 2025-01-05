@@ -11,28 +11,42 @@ return {
         globalstatus = true,
         theme = {
           normal = {
-            a = { fg = colors.green },
+            a = { fg = colors.aqua, bg = colors.aqua_dim },
             b = {},
-            c = {},
+            c = {
+              bg = colors.black_bright,
+            },
             x = {},
             y = {},
             z = {},
           },
           visual = {
-            a = { fg = colors.purple },
+            a = { fg = colors.violet, bg = colors.violet_dim },
           },
           insert = {
-            a = { fg = colors.blue },
+            a = { fg = colors.pink, bg = colors.pink_dim },
           },
           replace = {
-            a = { fg = colors.red },
+            a = { fg = colors.red, bg = colors.red_dim },
+          },
+          command = {
+            a = {
+              fg = colors.orange,
+              bg = colors.orange_dim,
+            },
+          },
+          inactive = {
+            a = {
+              fg = colors.white,
+              bg = colors.stone,
+            },
           },
         },
       },
       sections = {
         lualine_a = { 'mode' },
         lualine_b = {
-          'branch',
+          { 'branch', icon = icons.git.commit },
           'diff',
           {
             'diagnostics',
@@ -45,7 +59,8 @@ return {
           },
         },
         lualine_c = {
-          { 'filename', path = 1, separator = '', padding = { left = 1, right = 0 } },
+          { 'filetype', icon_only = true, separator = '', padding = { left = 1, right = 0 } },
+          { 'filename', path = 1, separator = '', padding = { left = 0, right = 0 } },
         },
         lualine_x = {},
         lualine_y = {

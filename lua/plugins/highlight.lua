@@ -77,10 +77,16 @@ return {
         'yaml',
         'go',
         'templ',
-        'scala',
+
+        'sql',
+
         'php',
         'php_only',
         'blade',
+        'ruby',
+        'elixir',
+
+        'gloss',
       },
       incremental_selection = {
         enable = true,
@@ -109,6 +115,13 @@ return {
         },
       }
 
+      vim.filetype.add {
+        pattern = {
+          ['.*%.gloss'] = 'gloss',
+          ['.gloss'] = 'gloss',
+        },
+      }
+
       local parser_config = require('nvim-treesitter.parsers').get_parser_configs()
       parser_config.blade = {
         install_info = {
@@ -117,6 +130,15 @@ return {
           branch = 'main',
         },
         filetype = 'blade',
+      }
+
+      parser_config.gloss = {
+        filetype = 'gloss',
+        install_info = {
+          url = 'https://github.com/sjwalker189/tree-sitter-gloss',
+          files = { 'src/parser.c' },
+          branch = 'dev',
+        },
       }
 
       if type(opts.ensure_installed) == 'table' then

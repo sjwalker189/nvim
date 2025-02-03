@@ -56,9 +56,21 @@ return {
         --
         -- Web Backend / Tooling
         --
+        --
+        elixirls = {
+          capabilities = capabilities,
+        },
         phpactor = {
           capabilities = capabilities,
           root_dir = nvim_lsp.util.root_pattern 'composer.json',
+        },
+
+        -- Ruby
+        ruby_lsp = {
+          capabilities = capabilities,
+        },
+        rubocop = {
+          capabilities = capabilities,
         },
 
         -- Go

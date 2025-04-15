@@ -85,7 +85,7 @@ return {
               return {
                 backend = 'nui',
                 nui = {
-                  relative = 'cursor',
+                  -- relative = 'cursor',
                   max_width = 40,
                 },
               }

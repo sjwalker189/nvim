@@ -1,13 +1,11 @@
--- [[ AutoCommands ]]
---
+local autocmd = vim.api.nvim_create_autocmd
+local augroup = vim.api.nvim_create_augroup
 
-local function augroup(name)
-  return vim.api.nvim_create_augroup('lazyvim_' .. name, { clear = true })
-end
+local BaseGroup = augroup('swalker', { clear = true })
 
 -- Check if we need to reload the file when it changed
-vim.api.nvim_create_autocmd({ 'FocusGained', 'TermClose', 'TermLeave' }, {
-  group = augroup 'checktime',
+autocmd({ 'FocusGained', 'TermClose', 'TermLeave' }, {
+  group = BaseGroup,
   callback = function()
     if vim.o.buftype ~= 'nofile' then
       vim.cmd 'checktime'
@@ -15,20 +13,17 @@ vim.api.nvim_create_autocmd({ 'FocusGained', 'TermClose', 'TermLeave' }, {
   end,
 })
 
--- Highlight when yanking (copying) text
---  Try it with `yap` in normal mode
---  See `:help vim.highlight.on_yank()`
--- Highlight on yank
-vim.api.nvim_create_autocmd('TextYankPost', {
-  group = augroup 'highlight_yank',
+-- Highlight when yanking text
+autocmd('TextYankPost', {
+  group = augroup('highlight_yank', {}),
   callback = function()
     (vim.hl or vim.highlight).on_yank()
   end,
 })
 
 -- Close some filetypes with <q>
-vim.api.nvim_create_autocmd('FileType', {
-  group = augroup 'close_with_q',
+autocmd('FileType', {
+  group = augroup('closeonq', {}),
   pattern = {
     'help',
     'lspinfo',
@@ -55,8 +50,8 @@ vim.api.nvim_create_autocmd('FileType', {
 })
 
 -- wrap and check for spell in text filetypes
-vim.api.nvim_create_autocmd('FileType', {
-  group = augroup 'wrap_spell',
+autocmd('FileType', {
+  group = BaseGroup,
   pattern = { 'text', 'plaintex', 'typst', 'gitcommit', 'markdown' },
   callback = function()
     vim.opt_local.wrap = true
@@ -65,13 +60,44 @@ vim.api.nvim_create_autocmd('FileType', {
 })
 
 -- Auto create dir when saving a file, in case some intermediate directory does not exist
-vim.api.nvim_create_autocmd({ 'BufWritePre' }, {
-  group = augroup 'auto_create_dir',
+autocmd({ 'BufWritePre' }, {
+  group = BaseGroup,
   callback = function(event)
     if event.match:match '^%w%w+:[\\/][\\/]' then
       return
     end
     local file = vim.uv.fs_realpath(event.match) or event.match
     vim.fn.mkdir(vim.fn.fnamemodify(file, ':p:h'), 'p')
+  end,
+})
+
+local mode = {
+  n = 'n',
+  v = 'v',
+  i = 'i',
+  x = 'x',
+  all = { 'n', 'v', 'i', 'x' },
+}
+
+-- Connect keymaps when LSP servers attach to buffers
+autocmd('LspAttach', {
+  group = BaseGroup,
+  callback = function(ev)
+    -- Enable completion triggered by <c-x><c-o>
+    vim.bo[ev.buf].omnifunc = 'v:lua.vim.lsp.omnifunc'
+
+    -- Buffer local mappings.
+    -- See `:help vim.lsp.*` for documentation on any of the below functions
+    local opts = { buffer = ev.buf }
+    vim.keymap.set(mode.n, 'gD', vim.lsp.buf.declaration, opts)
+    vim.keymap.set(mode.n, 'gd', vim.lsp.buf.definition, opts)
+    vim.keymap.set(mode.n, 'K', vim.lsp.buf.hover, opts)
+    vim.keymap.set(mode.n, '<C-k>', vim.lsp.buf.signature_help, opts)
+    vim.keymap.set(mode.n, '<C-T>', vim.lsp.buf.type_definition, opts)
+    vim.keymap.set(mode.n, '<F2>', vim.lsp.buf.rename, opts)
+    vim.keymap.set(mode.n, '<space>rn', vim.lsp.buf.rename, opts)
+    vim.keymap.set(mode.all, '<C-.>', vim.lsp.buf.code_action, opts)
+    vim.keymap.set(mode.all, '<F3>', vim.lsp.buf.code_action, opts)
+    vim.keymap.set(mode.n, 'gr', vim.lsp.buf.references, opts)
   end,
 })

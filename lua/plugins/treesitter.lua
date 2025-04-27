@@ -53,40 +53,30 @@ return {
       indent = { enable = true },
       autotag = { enable = true },
       ensure_installed = {
-        'typescript',
-        'javascript',
-        'tsx',
-        'vue',
-        'css',
+        'vim',
+        'vimdoc',
         'bash',
-        'diff',
-        'html',
-        'jsdoc',
-        'json',
-        'jsonc',
         'lua',
         'luadoc',
         'luap',
-        'markdown',
-        'markdown_inline',
         'query',
         'regex',
         'toml',
-        'vim',
-        'vimdoc',
         'yaml',
+        'json',
+        'jsonc',
+        'html',
+        'markdown',
+        'markdown_inline',
+        'css',
+        'tsx',
+        'typescript',
+        'javascript',
+        'jsdoc',
+        'vue',
         'go',
         'templ',
-
         'sql',
-
-        'php',
-        'php_only',
-        'blade',
-        'ruby',
-        'elixir',
-
-        'gloss',
       },
       incremental_selection = {
         enable = true,
@@ -109,38 +99,6 @@ return {
     },
     ---@param opts TSConfig
     config = function(_, opts)
-      vim.filetype.add {
-        pattern = {
-          ['.*%.blade%.php'] = 'blade',
-        },
-      }
-
-      vim.filetype.add {
-        pattern = {
-          ['.*%.gloss'] = 'gloss',
-          ['.gloss'] = 'gloss',
-        },
-      }
-
-      local parser_config = require('nvim-treesitter.parsers').get_parser_configs()
-      parser_config.blade = {
-        install_info = {
-          url = 'https://github.com/EmranMR/tree-sitter-blade',
-          files = { 'src/parser.c' },
-          branch = 'main',
-        },
-        filetype = 'blade',
-      }
-
-      parser_config.gloss = {
-        filetype = 'gloss',
-        install_info = {
-          url = 'https://github.com/sjwalker189/tree-sitter-gloss',
-          files = { 'src/parser.c' },
-          branch = 'dev',
-        },
-      }
-
       if type(opts.ensure_installed) == 'table' then
         ---@type table<string, boolean>
         local added = {}

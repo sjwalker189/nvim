@@ -21,6 +21,7 @@ return {
   },
   {
     'camspiers/snap',
+    enabled = false,
     dependencies = { 'camspiers/luarocks' },
     config = function()
       local snap = require 'snap'

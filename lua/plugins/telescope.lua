@@ -1,6 +1,7 @@
 return {
   {
     'nvim-telescope/telescope.nvim',
+    enabled = false,
     branch = '0.1.x',
     dependencies = {
       { 'kkharji/sqlite.lua' },
@@ -23,7 +24,7 @@ return {
             end,
           },
           layout_config = {
-            horizontal = { width = 0.95, height = 0.95 },
+            horizontal = { width = 0.9, height = 0.9 },
           },
         },
         extensions = {

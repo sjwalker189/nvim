@@ -99,5 +99,7 @@ autocmd('LspAttach', {
     vim.keymap.set(mode.all, '<C-.>', vim.lsp.buf.code_action, opts)
     vim.keymap.set(mode.all, '<F3>', vim.lsp.buf.code_action, opts)
     vim.keymap.set(mode.n, 'gr', vim.lsp.buf.references, opts)
+
+    vim.keymap.set(mode.n, '<space>cl', vim.lsp.codelens.run, opts)
   end,
 })

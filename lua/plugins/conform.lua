@@ -5,6 +5,8 @@ local format_opts = {
   stop_after_first = true,
 }
 
+local jsfmt = { 'biome' }
+
 return {
   {
     'stevearc/conform.nvim',
@@ -24,11 +26,11 @@ return {
       format_on_save = { timeout_ms = 500, lsp_fallback = true },
       formatters_by_ft = {
         lua = { 'stylua' },
-        javascript = { 'deno_fmt' },
-        javascriptreact = { 'deno_fmt' },
-        typescript = { 'deno_fmt' },
-        typescriptreact = { 'deno_fmt' },
-        vue = { 'deno_fmt' },
+        javascript = jsfmt,
+        javascriptreact = jsfmt,
+        typescript = jsfmt,
+        typescriptreact = jsfmt,
+        vue = jsfmt,
       },
       formatters = {
         shfmt = {

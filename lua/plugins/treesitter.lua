@@ -111,7 +111,24 @@ return {
         end, opts.ensure_installed)
       end
 
+      -- Install grammar with nvim-treesitter
+      local list = require('nvim-treesitter.parsers').get_parser_configs()
+      list.reason = {
+        install_info = {
+          url = 'https://github.com/reasonml-editor/tree-sitter-reason',
+          files = { 'src/parser.c', 'src/scanner.c' },
+          branch = 'master',
+        },
+      }
+
       require('nvim-treesitter.configs').setup(opts)
+
+      vim.filetype.add {
+        extension = {
+          re = 'reason',
+        },
+      }
+      vim.treesitter.language.add('reason', { filetype = 'reason' })
     end,
   },
 }

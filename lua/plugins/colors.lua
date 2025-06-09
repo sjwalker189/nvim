@@ -43,9 +43,17 @@ return {
           },
         },
         overrides = function(colors)
+          local theme = colors.theme
           return {
             -- Normal = { fg = "", bg = "" },
             -- Special1 = { fg = colors.palette.springViolet1 },
+            TelescopeTitle = {},
+            TelescopePromptNormal = {},
+            TelescopePromptBorder = {},
+            TelescopeResultsNormal = {},
+            TelescopeResultsBorder = {},
+            TelescopePreviewNormal = {},
+            TelescopePreviewBorder = {},
           }
         end,
       }

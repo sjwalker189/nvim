@@ -21,7 +21,7 @@ return {
   },
   {
     'camspiers/snap',
-    enabled = false,
+    -- enabled = false,
     dependencies = { 'camspiers/luarocks' },
     config = function()
       local snap = require 'snap'
@@ -60,23 +60,15 @@ return {
       end
 
       snap.maps {
+        { '<leader>fw', vimgrep { filter_with = 'cword' }, { command = 'currentwordgrep' } },
         {
           '<leader>ff',
           file { producer = 'ripgrep.file', args = search_patterns },
           command = 'files',
         },
+        { '<leader>fr', file { producer = 'vim.oldfile' }, { command = 'oldfiles' } },
         { '<leader>fg', vimgrep { producer = 'ripgrep.vimgrep', args = search_patterns }, { command = 'grep' } },
         { '<leader>fb', file { producer = 'vim.buffer' }, { command = 'buffers' } },
-        { '<leader>fr', file { producer = 'vim.oldfile' }, { command = 'oldfiles' } },
-        { '<leader>fw', vimgrep { filter_with = 'cword' }, { command = 'currentwordgrep' } },
-
-        -- Project wide search without ignored paths included
-        {
-          '<leader>fpf',
-          file { producer = 'ripgrep.file', args = search_defaults },
-          command = 'files',
-        },
-        { '<leader>fpg', vimgrep { producer = 'ripgrep.vimgrep', args = search_defaults }, { command = 'grep' } },
       }
 
       -- Theme

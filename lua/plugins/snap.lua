@@ -72,7 +72,7 @@ return {
       }
 
       -- Theme
-      vim.api.nvim_set_hl(0, 'SnapBorder', { fg = '#363646' })
+      -- vim.api.nvim_set_hl(0, 'SnapBorder', { fg = '#363646' })
     end,
   },
 }

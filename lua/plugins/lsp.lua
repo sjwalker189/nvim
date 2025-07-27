@@ -13,6 +13,10 @@ return {
     },
     event = 'VeryLazy',
     config = function()
+      local util = require 'lspconfig.util'
+      local is_node_project = util.root_pattern 'package.json'
+      local is_deno_project = util.root_pattern { 'deno.json', 'deno.jsonc' }
+
       local servers = {
         lua_ls = {
           settings = {
@@ -27,7 +31,26 @@ return {
             },
           },
         },
-        ts_ls = {},
+        ts_ls = {
+          single_file_support = false,
+          settings = {},
+          on_attach = function(client, bufnr)
+            if client.name == 'ts_ls' and not is_node_project(bufnr) then
+              client.stop()
+              return false
+            end
+          end,
+        },
+        denols = {
+          single_file_support = false,
+          settings = {},
+          on_attach = function(client, bufnr)
+            if client.name == 'denols' and not is_deno_project(bufnr) then
+              client.stop()
+              return false
+            end
+          end,
+        },
         bashls = {},
         html = {},
         cssls = {},

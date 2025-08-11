@@ -21,10 +21,10 @@ return {
       format_on_save = { timeout_ms = 500, lsp_fallback = true },
       formatters_by_ft = {
         lua = { 'stylua' },
-        javascript = { 'biome' },
-        javascriptreact = { 'biome' },
-        typescript = { 'biome' },
-        typescriptreact = { 'biome' },
+        javascript = { 'deno', 'biome' },
+        javascriptreact = { 'deno', 'biome' },
+        typescript = { 'deno', 'biome' },
+        typescriptreact = { 'deno', 'biome' },
         vue = { 'biome' },
       },
       formatters = {

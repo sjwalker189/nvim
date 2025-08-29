@@ -47,7 +47,6 @@ return {
           filetypes = { 'templ', 'javascript', 'typescript', 'react', 'vue', 'html' },
           init_options = { userLanguages = { templ = 'html' } },
         },
-
         denols = {
           single_file_support = false,
           settings = {},
@@ -92,6 +91,7 @@ return {
             settings = {},
           }
         end,
+        ols = {},
       }
 
       local ensure_installed = vim.tbl_keys(servers)
@@ -123,5 +123,11 @@ return {
         end,
       })
     end,
+  },
+
+  {
+    'mrcjkb/rustaceanvim',
+    version = '^6', -- Recommended
+    lazy = false, -- This plugin is already lazy
   },
 }

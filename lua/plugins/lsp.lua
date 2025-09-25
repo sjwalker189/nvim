@@ -47,6 +47,7 @@ return {
           filetypes = { 'templ', 'javascript', 'typescript', 'react', 'vue', 'html' },
           init_options = { userLanguages = { templ = 'html' } },
         },
+
         denols = {
           single_file_support = false,
           settings = {},
@@ -91,7 +92,6 @@ return {
             settings = {},
           }
         end,
-        ols = {},
       }
 
       local ensure_installed = vim.tbl_keys(servers)
@@ -116,16 +116,23 @@ return {
 
       vim.lsp.config('biome', {
         on_attach = function(client, bufnr)
-          if client.name == 'biome' and not is_node_project(bufnr) then
+          if client.name == 'biome' and is_deno_project(bufnr) then
             client.stop()
             return false
           end
         end,
       })
+
+      vim.lsp.config('gleam', {})
+      vim.lsp.enable 'gleam'
+
+      vim.lsp.config('phpactor', {})
+      vim.lsp.enable 'phpactor'
     end,
   },
 
   {
+    -- Rust
     'mrcjkb/rustaceanvim',
     version = '^6', -- Recommended
     lazy = false, -- This plugin is already lazy

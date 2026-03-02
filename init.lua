@@ -25,3 +25,15 @@ require('lazy').setup('plugins', {
 })
 
 vim.cmd.runtime { 'lua/startup/*.lua', bang = true }
+
+vim.filetype.add {
+  extension = {
+    gloss = 'gloss',
+  },
+}
+
+vim.filetype.add {
+  pattern = {
+    ['.*/test/corpus/.*%.txt'] = 'test',
+  },
+}

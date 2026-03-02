@@ -79,6 +79,14 @@ local mode = {
   all = { 'n', 'v', 'i', 'x' },
 }
 
+local function code_action()
+  vim.lsp.buf.code_action {
+    filter = function(action)
+      return action.disabled == nil
+    end,
+  }
+end
+
 -- Connect keymaps when LSP servers attach to buffers
 autocmd('LspAttach', {
   group = BaseGroup,
@@ -96,10 +104,20 @@ autocmd('LspAttach', {
     vim.keymap.set(mode.n, '<C-T>', vim.lsp.buf.type_definition, opts)
     vim.keymap.set(mode.n, '<F2>', vim.lsp.buf.rename, opts)
     vim.keymap.set(mode.n, '<space>rn', vim.lsp.buf.rename, opts)
-    vim.keymap.set(mode.all, '<C-.>', vim.lsp.buf.code_action, opts)
-    vim.keymap.set(mode.all, '<F3>', vim.lsp.buf.code_action, opts)
+    vim.keymap.set(mode.all, '<C-.>', code_action, opts)
+    vim.keymap.set(mode.all, '<F3>', code_action, opts)
     vim.keymap.set(mode.n, 'gr', vim.lsp.buf.references, opts)
 
     vim.keymap.set(mode.n, '<space>cl', vim.lsp.codelens.run, opts)
+  end,
+})
+
+vim.api.nvim_create_autocmd('BufWritePost', {
+  group = BaseGroup,
+  pattern = '*.scm',
+  callback = function()
+    vim.cmd 'TSDisable highlight'
+    vim.cmd 'TSEnable highlight'
+    vim.notify 'Reloaded highlights'
   end,
 })

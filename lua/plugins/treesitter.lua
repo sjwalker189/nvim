@@ -40,6 +40,15 @@ return {
           end
         end,
       },
+      -- {
+      --   'tree-sitter-grammars/tree-sitter-test',
+      --   build = 'mkdir parser && tree-sitter build -o parser/test.so',
+      --   ft = 'test',
+      --   init = function()
+      --     vim.g.tstest_fullwidth_rules = false
+      --     vim.g.tstest_rule_hlgroup = 'FoldColumn'
+      --   end,
+      -- },
     },
     cmd = { 'TSUpdateSync', 'TSUpdate', 'TSInstall' },
     keys = {
@@ -113,22 +122,30 @@ return {
 
       -- Install grammar with nvim-treesitter
       local list = require('nvim-treesitter.parsers').get_parser_configs()
-      list.reason = {
+
+      list.gloss = {
         install_info = {
-          url = 'https://github.com/reasonml-editor/tree-sitter-reason',
+          url = '/home/swalker/dev/gloss/tree-sitter-gloss',
           files = { 'src/parser.c', 'src/scanner.c' },
-          branch = 'master',
+          branch = 'main',
+          generate_requires_npm = false,
+          requires_generate_from_grammar = false,
         },
+        filetype = 'gloss',
+      }
+
+      list.test = {
+        install_info = {
+          url = 'https://github.com/tree-sitter-grammars/tree-sitter-test', -- The repo URL
+          files = { 'src/parser.c' },
+          branch = 'master',
+          generate_requires_npm = false,
+          requires_generate_from_grammar = false,
+        },
+        filetype = 'test', -- Associates the "test" filetype with this parser
       }
 
       require('nvim-treesitter.configs').setup(opts)
-
-      vim.filetype.add {
-        extension = {
-          re = 'reason',
-        },
-      }
-      vim.treesitter.language.add('reason', { filetype = 'reason' })
     end,
   },
 }

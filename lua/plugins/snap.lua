@@ -3,7 +3,7 @@
 local ignore_paths = {
   ['aviat/provision-plus'] = {
     '!.idea/*',
-    '!client/*',
+    --'!client/*',
     '!components/*',
     '!server/public/*',
     '!server/obfuscate/*',

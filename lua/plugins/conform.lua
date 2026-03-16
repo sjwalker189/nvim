@@ -26,6 +26,7 @@ return {
         typescript = { 'deno', 'biome', 'prettierd' },
         typescriptreact = { 'deno', 'biome', 'prettierd' },
         vue = { 'biome', 'prettierd' },
+        astro = { 'prettierd' },
       },
       formatters = {
         shfmt = {

@@ -43,6 +43,7 @@ return {
           },
         },
 
+        zls = {},
         html = {},
         cssls = {},
         tailwindcss = {
@@ -81,6 +82,7 @@ return {
             },
           },
         },
+        astro = {},
         gopls = {},
         templ = function()
           vim.filetype.add {

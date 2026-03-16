@@ -1,17 +1,17 @@
 -- List of project specific ignore paths for directories that
 -- are not excluded from source control but that I dont care about
 local ignore_paths = {
-  ['aviat/provision-plus'] = {
-    '!.idea/*',
-    --'!client/*',
-    '!components/*',
-    '!server/public/*',
-    '!server/obfuscate/*',
-    '!server/coverage/*',
-    '!server/report/assets/js/vendor/*',
-    '!server/report/assets/css/vendor/*',
-    '!deployment/*',
-  },
+  -- ['aviat/provision-plus'] = {
+  --   '!.idea/*',
+  --   --'!client/*',
+  --   '!components/*',
+  --   '!server/public/*',
+  --   '!server/obfuscate/*',
+  --   '!server/coverage/*',
+  --   '!server/report/assets/js/vendor/*',
+  --   '!server/report/assets/css/vendor/*',
+  --   '!deployment/*',
+  -- },
 }
 
 return {

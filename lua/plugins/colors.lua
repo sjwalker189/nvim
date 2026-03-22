@@ -215,7 +215,7 @@ return {
       })
 
       switch_colorscheme()
-      start_gsettings_monitor()
+      -- start_gsettings_monitor()
     end,
   },
 }

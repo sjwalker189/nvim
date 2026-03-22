@@ -1,3 +1,13 @@
+-- Fetch paths from LuaRocks for Lua 5.1
+local luarocks_path = vim.fn.system({ 'luarocks', '--lua-version', '5.1', 'path', '--lr-path' }):gsub('\n', '')
+local luarocks_cpath = vim.fn.system({ 'luarocks', '--lua-version', '5.1', 'path', '--lr-cpath' }):gsub('\n', '')
+
+-- Append them to Neovim's package paths
+package.path = package.path .. ';' .. luarocks_path
+package.cpath = package.cpath .. ';' .. luarocks_cpath
+
+vim.opt.rtp:prepend '~/.local/share/nvim/site'
+
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
   local lazyrepo = 'https://github.com/folke/lazy.nvim.git'

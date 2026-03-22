@@ -1,67 +1,10 @@
 return {
   {
     'nvim-treesitter/nvim-treesitter',
-    version = false,
     build = ':TSUpdate',
-    event = { 'VeryLazy' },
-    init = function(plugin)
-      -- PERF: add nvim-treesitter queries to the rtp and it's custom query predicates early
-      -- This is needed because a bunch of plugins no longer `require("nvim-treesitter")`, which
-      -- no longer trigger the **nvim-treeitter** module to be loaded in time.
-      -- Luckily, the only things that those plugins need are the custom queries, which we make available
-      -- during startup.
-      require('lazy.core.loader').add_to_rtp(plugin)
-      require 'nvim-treesitter.query_predicates'
-    end,
-    dependencies = {
-      { 'windwp/nvim-ts-autotag' }, -- Autopairs for html tags
-      {
-        'nvim-treesitter/nvim-treesitter-textobjects',
-        config = function()
-          -- When in diff mode, we want to use the default
-          -- vim text objects c & C instead of the treesitter ones.
-          local move = require 'nvim-treesitter.textobjects.move' ---@type table<string,fun(...)>
-          local configs = require 'nvim-treesitter.configs'
-          for name, fn in pairs(move) do
-            if name:find 'goto' == 1 then
-              move[name] = function(q, ...)
-                if vim.wo.diff then
-                  local config = configs.get_module('textobjects.move')[name] ---@type table<string,string>
-                  for key, query in pairs(config or {}) do
-                    if q == query and key:find '[%]%[][cC]' then
-                      vim.cmd('normal! ' .. key)
-                      return
-                    end
-                  end
-                end
-                return fn(q, ...)
-              end
-            end
-          end
-        end,
-      },
-      -- {
-      --   'tree-sitter-grammars/tree-sitter-test',
-      --   build = 'mkdir parser && tree-sitter build -o parser/test.so',
-      --   ft = 'test',
-      --   init = function()
-      --     vim.g.tstest_fullwidth_rules = false
-      --     vim.g.tstest_rule_hlgroup = 'FoldColumn'
-      --   end,
-      -- },
-    },
-    cmd = { 'TSUpdateSync', 'TSUpdate', 'TSInstall' },
-    keys = {
-      { '<c-space>', desc = 'Increment selection' },
-      { '<bs>', desc = 'Decrement selection', mode = 'x' },
-    },
-    ---@type TSConfig
-    ---@diagnostic disable-next-line: missing-fields
-    opts = {
-      highlight = { enable = true },
-      indent = { enable = true },
-      autotag = { enable = true },
-      ensure_installed = {
+    lazy = false,
+    config = function()
+      require('nvim-treesitter').install {
         'vim',
         'vimdoc',
         'bash',
@@ -86,66 +29,45 @@ return {
         'go',
         'templ',
         'sql',
-      },
-      incremental_selection = {
-        enable = true,
-        keymaps = {
-          init_selection = '<C-space>',
-          node_incremental = '<C-space>',
-          scope_incremental = false,
-          node_decremental = '<bs>',
-        },
-      },
-      textobjects = {
-        move = {
-          enable = true,
-          goto_next_start = { [']f'] = '@function.outer', [']c'] = '@class.outer' },
-          goto_next_end = { [']F'] = '@function.outer', [']C'] = '@class.outer' },
-          goto_previous_start = { ['[f'] = '@function.outer', ['[c'] = '@class.outer' },
-          goto_previous_end = { ['[F'] = '@function.outer', ['[C'] = '@class.outer' },
-        },
-      },
-    },
-    ---@param opts TSConfig
-    config = function(_, opts)
-      if type(opts.ensure_installed) == 'table' then
-        ---@type table<string, boolean>
-        local added = {}
-        opts.ensure_installed = vim.tbl_filter(function(lang)
-          if added[lang] then
-            return false
-          end
-          added[lang] = true
-          return true
-        end, opts.ensure_installed)
-      end
-
-      -- Install grammar with nvim-treesitter
-      local list = require('nvim-treesitter.parsers').get_parser_configs()
-
-      list.gloss = {
-        install_info = {
-          url = '/home/swalker/dev/gloss/tree-sitter-gloss',
-          files = { 'src/parser.c', 'src/scanner.c' },
-          branch = 'main',
-          generate_requires_npm = false,
-          requires_generate_from_grammar = false,
-        },
-        filetype = 'gloss',
       }
 
-      list.test = {
-        install_info = {
-          url = 'https://github.com/tree-sitter-grammars/tree-sitter-test', -- The repo URL
-          files = { 'src/parser.c' },
-          branch = 'master',
-          generate_requires_npm = false,
-          requires_generate_from_grammar = false,
-        },
-        filetype = 'test', -- Associates the "test" filetype with this parser
-      }
+      vim.api.nvim_create_autocmd('FileType', {
+        pattern = { '<filetype>' },
+        callback = function()
+          vim.wo[0][0].foldexpr = 'v:lua.vim.treesitter.foldexpr()'
+          vim.wo[0][0].foldmethod = 'expr'
+          vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+          vim.treesitter.start()
+        end,
+      })
 
-      require('nvim-treesitter.configs').setup(opts)
+      -- -- Add custom parsers
+      -- local parser_config = require('nvim-treesitter.parsers').get_parser_configs()
+      --
+      -- parser_config.gloss = {
+      --   install_info = {
+      --     -- Dynamically expands to /Users/swalker or /home/swalker
+      --     url = vim.fn.expand '$HOME' .. '/dev/gloss/tree-sitter-gloss',
+      --     files = { 'src/parser.c', 'src/scanner.c' },
+      --     branch = 'main',
+      --     generate_requires_npm = false,
+      --     requires_generate_from_grammar = false,
+      --   },
+      --   filetype = 'gloss',
+      -- }
+      --
+      -- parser_config.test = {
+      --   install_info = {
+      --     url = 'https://github.com/tree-sitter-grammars/tree-sitter-test',
+      --     files = { 'src/parser.c' },
+      --     branch = 'master',
+      --     generate_requires_npm = false,
+      --     requires_generate_from_grammar = false,
+      --   },
+      --   filetype = 'test',
+      -- }
+      --
+      -- require('nvim-treesitter.configs').setup(opts)
     end,
   },
 }

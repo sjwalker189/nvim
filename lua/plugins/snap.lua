@@ -16,13 +16,8 @@ local ignore_paths = {
 
 return {
   {
-    'camspiers/luarocks',
-    opts = { rocks = { 'fzy' } },
-  },
-  {
     'camspiers/snap',
-    -- enabled = false,
-    dependencies = { 'camspiers/luarocks' },
+    enabled = false,
     config = function()
       local snap = require 'snap'
 

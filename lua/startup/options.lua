@@ -64,3 +64,6 @@ vim.g.netrw_winsize = 25
 
 vim.opt.swapfile = false
 vim.opt.wrap = false
+
+-- Global statusline
+vim.opt.laststatus = 3

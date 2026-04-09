@@ -2,13 +2,12 @@ return {
   {
     'nvim-telescope/telescope.nvim',
     version = '*',
+    enabled = false,
     dependencies = {
-      'nvim-lua/plenary.nvim',
-
-      {
-        'nvim-telescope/telescope-fzf-native.nvim',
-        build = 'make',
-      },
+      { 'nvim-lua/plenary.nvim' },
+      { 'nvim-telescope/telescope-ui-select.nvim' },
+      { 'nvim-telescope/telescope-frecency.nvim', version = '*' },
+      { 'nvim-telescope/telescope-fzf-native.nvim', build = 'make' },
     },
 
     config = function()
@@ -34,7 +33,6 @@ return {
             height = 0.95,
             preview_cutoff = 0,
             prompt_position = 'top',
-
             horizontal = { preview_width = 0.5 },
           },
           sorting_strategy = 'ascending',
@@ -81,14 +79,20 @@ return {
             override_file_sorter = true,
             case_mode = 'smart_case',
           },
+          ['ui-select'] = {
+            require('telescope.themes').get_dropdown {},
+          },
         },
       }
 
       require('telescope').load_extension 'fzf'
+      require('telescope').load_extension 'ui-select'
+      require('telescope').load_extension 'frecency'
 
       vim.keymap.set('n', '<leader>ff', builtin.find_files, { desc = 'Find Files' })
       vim.keymap.set('n', '<leader>fb', builtin.buffers, { desc = 'Find Buffers' })
       vim.keymap.set('n', '<leader>fr', builtin.oldfiles, { desc = 'Find Recent Files' })
+      vim.keymap.set('n', '<leader>r', builtin.resume, { desc = 'Resume last search' })
       vim.keymap.set('n', '<leader>fg', builtin.live_grep, { desc = 'Live Grep' })
       vim.keymap.set('n', '<leader>fq', builtin.quickfix, { desc = 'Find Quick Fix' })
     end,

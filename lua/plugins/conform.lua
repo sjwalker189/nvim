@@ -27,6 +27,7 @@ return {
         typescriptreact = { 'deno', 'biome', 'prettierd' },
         vue = { 'biome', 'prettierd' },
         astro = { 'prettierd' },
+        php = { 'pint' },
       },
       formatters = {
         shfmt = {
@@ -36,6 +37,21 @@ return {
     },
     init = function()
       vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
+    end,
+  },
+
+  {
+    'mfussenegger/nvim-lint',
+    config = function()
+      require('lint').linters_by_ft = {
+        php = { 'phpstan' },
+        vue = { 'eslint' },
+      }
+      vim.api.nvim_create_autocmd({ 'BufWritePost' }, {
+        callback = function()
+          require('lint').try_lint()
+        end,
+      })
     end,
   },
 }

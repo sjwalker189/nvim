@@ -14,7 +14,7 @@ vim.keymap.set('n', '<C-s>', '<CMD>update<CR>', { desc = '[S]ave File' })
 vim.keymap.set('i', '<C-c>', '<Esc>')
 
 -- Window Navigations
-vim.keymap.set('n', '<C-Left>', '<C-w>h', { silent = true })
+vim.keymap.set('n', '<C-Left>', '<C-w>h', { silent = true, noremap = true })
 vim.keymap.set('n', '<C-Right>', '<C-w>l', { silent = true })
 vim.keymap.set('n', '<C-Up>', '<C-w>k', { silent = true })
 vim.keymap.set('n', '<C-Down>', '<C-w>j', { silent = true })

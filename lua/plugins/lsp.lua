@@ -97,6 +97,8 @@ return {
             settings = {},
           }
         end,
+
+        intelephense = {},
       }
 
       local ensure_installed = vim.tbl_keys(servers)

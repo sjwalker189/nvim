@@ -16,8 +16,7 @@ local ignore_paths = {
 
 return {
   {
-    'camspiers/snap',
-    enabled = false,
+    'sjwalker189/snap',
     config = function()
       local snap = require 'snap'
 
@@ -46,7 +45,7 @@ return {
 
       -- Apply any custom ignore path rules defined for the current directory
       for path, patterns in pairs(ignore_paths) do
-        if cwd:sub(-#path) then
+        if cwd ~= nil and cwd ~= '' and cwd:sub(-#path) then
           for _, pattern in pairs(patterns) do
             table.insert(search_patterns, '--iglob')
             table.insert(search_patterns, pattern)
@@ -66,7 +65,6 @@ return {
         { '<leader>fb', file { producer = 'vim.buffer' }, { command = 'buffers' } },
       }
 
-      -- Theme
       -- vim.api.nvim_set_hl(0, 'SnapBorder', { fg = '#363646' })
     end,
   },

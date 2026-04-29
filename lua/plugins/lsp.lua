@@ -14,16 +14,7 @@ return {
     event = 'VeryLazy',
     config = function()
       local util = require 'lspconfig.util'
-      local is_node_project = util.root_pattern 'package.json'
       local is_deno_project = util.root_pattern { 'deno.json', 'deno.jsonc' }
-      local cancel_attach = function(predicate)
-        return function(client, bufnr)
-          if predicate(bufnr) then
-            client.stop()
-            return false
-          end
-        end
-      end
 
       local vue_language_server_path = vim.fn.expand '$MASON/packages/vue-language-server'
 
@@ -43,7 +34,6 @@ return {
           },
         },
 
-        zls = {},
         html = {},
         cssls = {},
         tailwindcss = {
@@ -52,6 +42,7 @@ return {
         },
         ts_ls = {
           filetypes = { 'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue' },
+          root_markers = { 'package.json', 'tsconfig.json' },
           init_options = {
             plugins = {
               {
@@ -76,6 +67,7 @@ return {
         },
         vue_ls = {
           filetypes = { 'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue' },
+          root_markers = { 'package.json', 'tsconfig.json' },
           init_options = {
             vue = {
               hybridMode = true,
@@ -98,7 +90,13 @@ return {
           }
         end,
 
-        intelephense = {},
+        eslint = {
+          root_markers = { 'eslint.config.js', 'eslint.config.ts', 'eslint.config.json', '.eslintrc' },
+        },
+
+        -- intelephense = {
+        --   root_markers = { 'composer.json' },
+        -- },
       }
 
       local ensure_installed = vim.tbl_keys(servers)
@@ -116,6 +114,13 @@ return {
           vim.lsp.config(name, opts)
         end
       end
+
+      vim.lsp.config('phpantom', {
+        cmd = { 'phpantom_lsp' },
+        filetypes = { 'php' },
+        root_markers = { 'composer.json', '.git' },
+      })
+      vim.lsp.enable 'phpantom'
 
       vim.lsp.config('biome', {
         on_attach = function(client, bufnr)

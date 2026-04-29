@@ -65,6 +65,7 @@ return {
     'nvim-lualine/lualine.nvim',
     dependencies = { 'nvim-tree/nvim-web-devicons' },
     init = function()
+      vim.opt.laststatus = 3
       require('lualine').setup {
         globalstatus = true,
         sections = {

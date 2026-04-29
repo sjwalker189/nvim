@@ -10,7 +10,7 @@ return {
           require('conform').format {
             async = true,
             lsp_fallback = true,
-            stop_after_first = true,
+            stop_after_first = false,
           }
         end,
         mode = '',
@@ -21,13 +21,14 @@ return {
       format_on_save = { timeout_ms = 500, lsp_fallback = true },
       formatters_by_ft = {
         lua = { 'stylua' },
-        javascript = { 'deno', 'biome', 'prettierd' },
-        javascriptreact = { 'deno', 'biome', 'prettierd' },
-        typescript = { 'deno', 'biome', 'prettierd' },
-        typescriptreact = { 'deno', 'biome', 'prettierd' },
-        vue = { 'biome', 'prettierd' },
+        javascript = { 'prettierd' },
+        javascriptreact = { 'prettierd' },
+        typescript = { 'prettierd' },
+        typescriptreact = { 'prettierd' },
+        vue = { 'prettierd' },
         astro = { 'prettierd' },
         php = { 'pint' },
+        go = { 'goimports', 'gofmt' },
       },
       formatters = {
         shfmt = {
@@ -42,10 +43,11 @@ return {
 
   {
     'mfussenegger/nvim-lint',
+    enabled = true,
     config = function()
       require('lint').linters_by_ft = {
         php = { 'phpstan' },
-        vue = { 'eslint' },
+        -- vue = { 'eslint_d' },
       }
       vim.api.nvim_create_autocmd({ 'BufWritePost' }, {
         callback = function()

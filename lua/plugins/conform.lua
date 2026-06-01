@@ -10,7 +10,7 @@ return {
           require('conform').format {
             async = true,
             lsp_fallback = true,
-            stop_after_first = false,
+            stop_after_first = true,
           }
         end,
         mode = '',
@@ -27,8 +27,8 @@ return {
         typescriptreact = { 'prettierd' },
         vue = { 'prettierd' },
         astro = { 'prettierd' },
-        php = { 'pint' },
         go = { 'goimports', 'gofmt' },
+        php = { 'pint', lsp_format = 'never' },
       },
       formatters = {
         shfmt = {

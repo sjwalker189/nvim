@@ -1,15 +1,6 @@
-local dark_theme = 'rose-pine' --'catppuccin'
+local dark_theme = 'sora' --'north-sea' --'rose-pine' --'catppuccin'
 local light_theme = 'rose-pine' -- 'modus-operandi'
 local gsettings_key = 'org.gnome.desktop.interface color-scheme'
-
-local function switch_colorscheme()
-  vim.cmd.highlight 'clear'
-  if vim.o.background == 'dark' then
-    vim.cmd.colorscheme(dark_theme)
-  else
-    vim.cmd.colorscheme(light_theme)
-  end
-end
 
 local function update_colorscheme(scheme_value)
   local current_scheme = scheme_value
@@ -75,6 +66,16 @@ local function hl_undercurl()
   end
 end
 
+local function switch_colorscheme()
+  vim.cmd.highlight 'clear'
+  hl_undercurl()
+  if vim.o.background == 'dark' then
+    vim.cmd.colorscheme(dark_theme)
+  else
+    vim.cmd.colorscheme(light_theme)
+  end
+end
+
 return {
   -- {
   --   'savq/melange-nvim',
@@ -104,9 +105,12 @@ return {
   --
   {
     'tjdevries/colorbuddy.nvim',
+    lazy = false,
+    priority = 1000,
     dependencies = {
-      'ishan9299/modus-theme-vim',
       { 'rose-pine/neovim', name = 'rose-pine' },
+      'terkelg/north-sea.nvim',
+      'Aejkatappaja/sora',
     },
     priority = 1000,
     config = function()

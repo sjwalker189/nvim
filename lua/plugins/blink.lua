@@ -35,26 +35,46 @@ return {
       },
 
       -- (Default) Only show the documentation popup when manually triggered
-      completion = { documentation = { auto_show = true }, ghost_text = {
-        enabled = false,
-      } },
+      completion = {
+        documentation = {
+          auto_show = true,
+        },
+        ghost_text = {
+          enabled = false,
+        },
+      },
 
       -- Default list of enabled providers defined so that you can extend it
       -- elsewhere in your config, without redefining it, due to `opts_extend`
       sources = {
         default = { 'lsp', 'path', 'snippets', 'buffer' },
+
+        providers = {
+          snippets = {
+            opts = {
+              friendly_snippets = true,
+
+              -- see the list of frameworks in: https://github.com/rafamadriz/friendly-snippets/tree/main/snippets/frameworks
+              -- and search for possible languages in: https://github.com/rafamadriz/friendly-snippets/blob/main/package.json
+              -- the following is just an example, you should only enable the frameworks that you use
+              extended_filetypes = {
+                php = { 'phpdoc' },
+                vue = { 'vue' },
+                typescript = { 'typescript' },
+                go = { 'go' },
+                lua = { 'lua' },
+              },
+            },
+          },
+        },
       },
 
       signature = {
         enabled = true,
       },
-
-      -- (Default) Rust fuzzy matcher for typo resistance and significantly better performance
-      -- You may use a lua implementation instead by using `implementation = "lua"` or fallback to the lua implementation,
-      -- when the Rust fuzzy matcher is not available, by using `implementation = "prefer_rust"`
-      --
-      -- See the fuzzy documentation for more information
-      fuzzy = { implementation = 'prefer_rust_with_warning' },
+      fuzzy = {
+        implementation = 'rust',
+      },
     },
 
     opts_extend = { 'sources.default' },

@@ -94,15 +94,15 @@ return {
           root_markers = { 'eslint.config.js', 'eslint.config.ts', 'eslint.config.json', '.eslintrc' },
         },
 
-        -- intelephense = {
-        --   root_markers = { 'composer.json' },
-        -- },
+        intelephense = {
+          root_markers = { 'composer.json' },
+        },
       }
 
       local ensure_installed = vim.tbl_keys(servers)
 
       require('mason-lspconfig').setup {
-        automatic_enable = true,
+        automatic_enable = { exclude = { 'rust_analyzer' } },
         ensure_installed = ensure_installed,
       }
 
@@ -115,13 +115,13 @@ return {
         end
       end
 
-      vim.lsp.config('phpantom', {
-        cmd = { 'phpantom_lsp' },
-        filetypes = { 'php' },
-        root_markers = { 'composer.json', '.git' },
-      })
-      vim.lsp.enable 'phpantom'
-
+      -- vim.lsp.config('phpantom', {
+      --   cmd = { 'phpantom_lsp' },
+      --   filetypes = { 'php' },
+      --   root_markers = { 'composer.json', '.git' },
+      -- })
+      -- vim.lsp.enable 'phpantom'
+      --
       vim.lsp.config('biome', {
         on_attach = function(client, bufnr)
           if client.name == 'biome' and is_deno_project(bufnr) then
@@ -134,9 +134,36 @@ return {
   },
 
   {
-    -- Rust
     'mrcjkb/rustaceanvim',
-    version = '^6', -- Recommended
-    lazy = false, -- This plugin is already lazy
+    version = '^6',
+    lazy = false,
+    init = function()
+      vim.g.rustaceanvim = {
+        server = {
+          default_settings = {
+            ['rust-analyzer'] = {
+              checkOnSave = { command = 'clippy' },
+              cargo = { allFeatures = true },
+              inlayHints = {
+                closureReturnTypeHints = { enable = 'always' },
+                lifetimeElisionHints = { enable = 'always', useParameterNames = true },
+              },
+            },
+          },
+          on_attach = function(_, bufnr)
+            local opts = { buffer = bufnr }
+            -- Override generic LSP maps with Rust-specific equivalents
+            vim.keymap.set('n', 'K', function() vim.cmd.RustLsp { 'hover', 'actions' } end, opts)
+            vim.keymap.set({ 'n', 'v', 'i', 'x' }, '<C-.>', function() vim.cmd.RustLsp 'codeAction' end, opts)
+            vim.keymap.set({ 'n', 'v', 'i', 'x' }, '<F3>', function() vim.cmd.RustLsp 'codeAction' end, opts)
+            -- Rust-specific extras
+            vim.keymap.set('n', '<leader>re', function() vim.cmd.RustLsp 'expandMacro' end, opts)
+            vim.keymap.set('n', '<leader>rr', function() vim.cmd.RustLsp 'runnables' end, opts)
+            vim.keymap.set('n', '<leader>rt', function() vim.cmd.RustLsp 'testables' end, opts)
+            vim.keymap.set('n', '<leader>rod', function() vim.cmd.RustLsp 'openDocs' end, opts)
+          end,
+        },
+      }
+    end,
   },
 }

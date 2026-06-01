@@ -14,6 +14,40 @@ local ignore_paths = {
   -- },
 }
 
+local function snap_directory_grep(snap)
+  local fd_args = { '--type', 'd', '-H', '-E', '.git', '-E', 'node_modules', '-E', 'vendor' }
+  local dir_picker = snap.config.file {
+    prompt = 'Select Directory> ',
+    producer = 'fd.file',
+    args = fd_args,
+    select = function(yield)
+      -- 'yield' is an iterator in snap. Calling it gets the selected item.
+      local dir = yield()
+
+      -- Exit if the user pressed Escape
+      if not dir then
+        return
+      end
+
+      -- Step 2: Create the grep picker for the chosen directory
+      local grep_picker = snap.config.vimgrep {
+        prompt = 'Grep in ' .. dir .. '> ',
+        -- Pass the directory path as an argument so ripgrep only searches there
+        args = { dir },
+      }
+
+      grep_picker()
+    end,
+  }
+
+  return dir_picker
+end
+
+local function insert_ignore_pattern(t, pattern)
+  table.insert(t, '--iglob')
+  table.insert(t, pattern)
+end
+
 return {
   {
     'sjwalker189/snap',
@@ -33,22 +67,23 @@ return {
 
       local cwd = vim.loop.cwd()
 
+      local search_patterns = { '--hidden' }
+
       local search_defaults = {
-        '--hidden',
-        '--iglob',
         '!.git/*',
-        '--iglob',
         '!node_modules/*',
+        '!vendor/*',
       }
 
-      local search_patterns = vim.tbl_extend('force', search_defaults, {})
+      for _, path in ipairs(search_defaults) do
+        insert_ignore_pattern(search_patterns, path)
+      end
 
       -- Apply any custom ignore path rules defined for the current directory
       for path, patterns in pairs(ignore_paths) do
         if cwd ~= nil and cwd ~= '' and cwd:sub(-#path) then
           for _, pattern in pairs(patterns) do
-            table.insert(search_patterns, '--iglob')
-            table.insert(search_patterns, pattern)
+            insert_ignore_pattern(search_patterns, pattern)
           end
         end
       end
@@ -57,12 +92,20 @@ return {
         { '<leader>fw', vimgrep { filter_with = 'cword' }, { command = 'currentwordgrep' } },
         {
           '<leader>ff',
-          file { producer = 'ripgrep.file', args = search_patterns },
-          command = 'files',
+          file {
+            producer = 'ripgrep.file',
+            args = search_patterns,
+            command = 'files',
+          },
         },
         { '<leader>fr', file { producer = 'vim.oldfile' }, { command = 'oldfiles' } },
         { '<leader>fg', vimgrep { producer = 'ripgrep.vimgrep', args = search_patterns }, { command = 'grep' } },
         { '<leader>fb', file { producer = 'vim.buffer' }, { command = 'buffers' } },
+        {
+          '<leader>fid',
+          snap_directory_grep(snap),
+          { desc = 'Grep in directory' },
+        }, -- Find in dir
       }
 
       -- vim.api.nvim_set_hl(0, 'SnapBorder', { fg = '#363646' })

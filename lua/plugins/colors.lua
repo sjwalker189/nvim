@@ -1,4 +1,4 @@
-local dark_theme = 'sora' --'north-sea' --'rose-pine' --'catppuccin'
+local dark_theme = 'rose-pine' --'north-sea' --'rose-pine' --'catppuccin'
 local light_theme = 'rose-pine' -- 'modus-operandi'
 local gsettings_key = 'org.gnome.desktop.interface color-scheme'
 
@@ -106,7 +106,6 @@ return {
   {
     'tjdevries/colorbuddy.nvim',
     lazy = false,
-    priority = 1000,
     dependencies = {
       { 'rose-pine/neovim', name = 'rose-pine' },
       'terkelg/north-sea.nvim',

@@ -1,1 +1,1 @@
-/home/swalker/dev/gloss/tree-sitter-gloss/queries/highlights.scm
+/Users/swalker/dev/gloss/tree-sitter-gloss/queries/highlights.scm

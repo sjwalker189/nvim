@@ -22,6 +22,7 @@ local ensure_installed = {
   'go',
   'templ',
   'sql',
+  'gloss',
 }
 
 return {
@@ -35,6 +36,26 @@ return {
           pcall(vim.treesitter.start)
           -- Enable treesitter-based indentation
           vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+        end,
+      })
+
+      -- Register the local Gloss grammar. nvim-treesitter's install/update path
+      -- reloads the parsers table from scratch (reload_parsers) and fires
+      -- `User TSUpdate` so custom parsers can be re-registered onto the fresh
+      -- table -- registering here (not via a one-time mutation) is what makes it
+      -- survive :TSInstall/:TSUpdate. Compiles gloss.so into site/parser and
+      -- symlinks the repo's queries/ dir.
+      vim.api.nvim_create_autocmd('User', {
+        pattern = 'TSUpdate',
+        callback = function()
+          require('nvim-treesitter.parsers').gloss = {
+            install_info = {
+              path = vim.fn.expand '~/dev/gloss/tree-sitter-gloss',
+              queries = 'queries',
+              -- generate = true, -- enable if you edit grammar.js and want regen on :TSInstall
+            },
+            filetype = 'gloss',
+          }
         end,
       })
 

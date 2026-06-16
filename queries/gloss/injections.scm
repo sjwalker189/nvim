@@ -1,1 +1,1 @@
-/home/swalker/dev/gloss/tree-sitter-gloss/queries/injections.scm
+/Users/swalker/dev/gloss/tree-sitter-gloss/queries/injections.scm

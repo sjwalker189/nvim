@@ -1,32 +1,32 @@
 return {
-  {
-    'stevearc/conform.nvim',
-    event = { 'BufWritePre' },
-    cmd = { 'ConformInfo' },
-    keys = {
-      {
-        '<S-C-i>',
-        function()
-          require('conform').format {
-            async = true,
-            lsp_fallback = true,
-            stop_after_first = true,
-          }
-        end,
-        mode = '',
-        desc = 'Format buffer',
-      },
-    },
-    opts = {
-      format_on_save = { timeout_ms = 500, lsp_fallback = true },
+  src = {
+    { src = 'https://github.com/stevearc/conform.nvim' },
+    { src = 'https://github.com/mfussenegger/nvim-lint' },
+  },
+  setup = function()
+    require('conform').setup {
+      -- PHP (pint) is slow, so format it asynchronously *after* the write to
+      -- keep saving snappy; every other filetype formats synchronously before
+      -- save as usual. The two hooks are mutually exclusive per buffer.
+      format_on_save = function(bufnr)
+        if vim.bo[bufnr].filetype == 'php' then
+          return nil
+        end
+        return { timeout_ms = 500, lsp_format = 'fallback' }
+      end,
+      format_after_save = function(bufnr)
+        if vim.bo[bufnr].filetype == 'php' then
+          return { lsp_format = 'fallback' }
+        end
+      end,
       formatters_by_ft = {
         lua = { 'stylua' },
-        javascript = { 'prettier' },
-        javascriptreact = { 'prettier' },
-        typescript = { 'prettier' },
-        typescriptreact = { 'prettier' },
-        vue = { 'prettier' },
-        astro = { 'prettier' },
+        javascript = { 'oxfmt' },
+        javascriptreact = { 'oxfmt' },
+        typescript = { 'oxfmt' },
+        typescriptreact = { 'oxfmt' },
+        vue = { 'oxfmt' },
+        astro = { 'oxfmt' },
         go = { 'goimports', 'gofmt' },
         php = { 'pint', lsp_format = 'never' },
       },
@@ -35,25 +35,26 @@ return {
           prepend_args = { '-i', '2' },
         },
       },
-    },
-    init = function()
-      vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
-    end,
-  },
+    }
 
-  {
-    'mfussenegger/nvim-lint',
-    enabled = true,
-    config = function()
-      require('lint').linters_by_ft = {
-        php = { 'phpstan' },
-        -- vue = { 'eslint_d' },
+    vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
+
+    vim.keymap.set('', '<S-C-i>', function()
+      require('conform').format {
+        async = true,
+        lsp_format = 'fallback',
+        stop_after_first = true,
       }
-      vim.api.nvim_create_autocmd({ 'BufWritePost' }, {
-        callback = function()
-          require('lint').try_lint()
-        end,
-      })
-    end,
-  },
+    end, { desc = 'Format buffer' })
+
+    require('lint').linters_by_ft = {
+      php = { 'phpstan' },
+      -- vue = { 'eslint_d' },
+    }
+    vim.api.nvim_create_autocmd({ 'BufWritePost' }, {
+      callback = function()
+        require('lint').try_lint()
+      end,
+    })
+  end,
 }

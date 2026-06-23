@@ -71,48 +71,7 @@ autocmd({ 'BufWritePre' }, {
   end,
 })
 
-local mode = {
-  n = 'n',
-  v = 'v',
-  i = 'i',
-  x = 'x',
-  all = { 'n', 'v', 'i', 'x' },
-}
-
-local function code_action()
-  vim.lsp.buf.code_action {
-    filter = function(action)
-      return action.disabled == nil
-    end,
-  }
-end
-
--- Connect keymaps when LSP servers attach to buffers
-autocmd('LspAttach', {
-  group = BaseGroup,
-  callback = function(ev)
-    -- Enable completion triggered by <c-x><c-o>
-    vim.bo[ev.buf].omnifunc = 'v:lua.vim.lsp.omnifunc'
-
-    -- Buffer local mappings.
-    -- See `:help vim.lsp.*` for documentation on any of the below functions
-    local opts = { buffer = ev.buf }
-    vim.keymap.set(mode.n, 'gD', vim.lsp.buf.declaration, opts)
-    vim.keymap.set(mode.n, 'gd', vim.lsp.buf.definition, opts)
-    vim.keymap.set(mode.n, 'K', vim.lsp.buf.hover, opts)
-    vim.keymap.set(mode.n, '<C-k>', vim.lsp.buf.signature_help, opts)
-    vim.keymap.set(mode.n, '<C-T>', vim.lsp.buf.type_definition, opts)
-    vim.keymap.set(mode.n, '<F2>', vim.lsp.buf.rename, opts)
-    vim.keymap.set(mode.n, '<space>rn', vim.lsp.buf.rename, opts)
-    vim.keymap.set(mode.all, '<C-.>', code_action, opts)
-    vim.keymap.set(mode.all, '<F3>', code_action, opts)
-    vim.keymap.set(mode.n, 'gr', vim.lsp.buf.references, opts)
-
-    vim.keymap.set(mode.n, '<space>cl', vim.lsp.codelens.run, opts)
-  end,
-})
-
-vim.api.nvim_create_autocmd('BufWritePost', {
+autocmd('BufWritePost', {
   group = BaseGroup,
   pattern = '*.scm',
   callback = function()

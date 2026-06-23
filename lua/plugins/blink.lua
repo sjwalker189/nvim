@@ -1,27 +1,11 @@
 return {
-  {
-    'saghen/blink.cmp',
-    -- optional: provides snippets for the snippet source
-    dependencies = { 'rafamadriz/friendly-snippets' },
-
-    -- use a release tag to download pre-built binaries
-    version = '1.*',
-
-    ---@module 'blink.cmp'
-    ---@type blink.cmp.Config
-    opts = {
-      -- 'default' (recommended) for mappings similar to built-in completions (C-y to accept)
-      -- 'super-tab' for mappings similar to vscode (tab to accept)
-      -- 'enter' for enter to accept
-      -- 'none' for no mappings
-      --
-      -- All presets have the following mappings:
-      -- C-space: Open menu or open docs if already open
-      -- C-n/C-p or Up/Down: Select next/previous item
-      -- C-e: Hide menu
-      -- C-k: Toggle signature help (if signature.enabled = true)
-      --
-      -- See :h blink-cmp-config-keymap for defining your own keymap
+  src = {
+    -- Track the 1.x release tags so blink can fetch its prebuilt fuzzy binary.
+    { src = 'https://github.com/saghen/blink.cmp', version = vim.version.range '1' },
+    { src = 'https://github.com/rafamadriz/friendly-snippets' },
+  },
+  setup = function()
+    require('blink.cmp').setup {
       keymap = {
         preset = 'default',
         ['<Up>'] = { 'select_prev', 'fallback' },
@@ -29,12 +13,9 @@ return {
       },
 
       appearance = {
-        -- 'mono' (default) for 'Nerd Font Mono' or 'normal' for 'Nerd Font'
-        -- Adjusts spacing to ensure icons are aligned
         nerd_font_variant = 'mono',
       },
 
-      -- (Default) Only show the documentation popup when manually triggered
       completion = {
         documentation = {
           auto_show = true,
@@ -44,8 +25,6 @@ return {
         },
       },
 
-      -- Default list of enabled providers defined so that you can extend it
-      -- elsewhere in your config, without redefining it, due to `opts_extend`
       sources = {
         default = { 'lsp', 'path', 'snippets', 'buffer' },
 
@@ -53,10 +32,6 @@ return {
           snippets = {
             opts = {
               friendly_snippets = true,
-
-              -- see the list of frameworks in: https://github.com/rafamadriz/friendly-snippets/tree/main/snippets/frameworks
-              -- and search for possible languages in: https://github.com/rafamadriz/friendly-snippets/blob/main/package.json
-              -- the following is just an example, you should only enable the frameworks that you use
               extended_filetypes = {
                 php = { 'phpdoc' },
                 vue = { 'vue' },
@@ -75,8 +50,6 @@ return {
       fuzzy = {
         implementation = 'rust',
       },
-    },
-
-    opts_extend = { 'sources.default' },
-  },
+    }
+  end,
 }

@@ -1,169 +1,81 @@
+-- Server configs live in `~/.config/nvim/lsp/<name>.lua` (the native nvim 0.11+
+-- convention) and are merged on top of nvim-lspconfig's defaults. Servers
+-- without a file here use lspconfig's config as-is.
+local servers = {
+  'bashls',
+  'lua_ls',
+  'html',
+  'cssls',
+  'tailwindcss',
+  'ts_ls',
+  'vue_ls',
+  'astro',
+  'gopls',
+  'templ',
+  'eslint',
+  'intelephense',
+}
+
+-- Buffer-local LSP keymaps, wired on attach. { mode, lhs, rhs }
+local function code_action()
+  vim.lsp.buf.code_action {
+    filter = function(action)
+      return action.disabled == nil
+    end,
+  }
+end
+
+local lsp_maps = {
+  { 'n', 'gD', vim.lsp.buf.declaration },
+  { 'n', 'gd', vim.lsp.buf.definition },
+  { 'n', 'K', vim.lsp.buf.hover },
+  { 'n', '<C-k>', vim.lsp.buf.signature_help },
+  { 'n', '<C-T>', vim.lsp.buf.type_definition },
+  { 'n', '<F2>', vim.lsp.buf.rename },
+  { 'n', '<space>rn', vim.lsp.buf.rename },
+  { { 'n', 'v', 'i', 'x' }, '<C-.>', code_action },
+  { { 'n', 'v', 'i', 'x' }, '<F3>', code_action },
+  { 'n', 'gr', vim.lsp.buf.references },
+  { 'n', '<space>cl', vim.lsp.codelens.run },
+}
+
 return {
-  {
-    'folke/neodev.nvim',
-    config = function()
-      require('neodev').setup {}
-    end,
+  src = {
+    { src = 'https://github.com/folke/neodev.nvim' },
+    { src = 'https://github.com/neovim/nvim-lspconfig' },
+    { src = 'https://github.com/mason-org/mason.nvim' },
+    { src = 'https://github.com/mason-org/mason-lspconfig.nvim' },
   },
-  {
-    'neovim/nvim-lspconfig',
-    dependencies = {
-      { 'mason-org/mason.nvim', opts = {} },
-      { 'mason-org/mason-lspconfig.nvim', opts = {} },
-    },
-    event = 'VeryLazy',
-    config = function()
-      local util = require 'lspconfig.util'
-      local is_deno_project = util.root_pattern { 'deno.json', 'deno.jsonc' }
+  setup = function()
+    -- neodev must be set up before lua_ls attaches.
+    require('neodev').setup {}
 
-      local vue_language_server_path = vim.fn.expand '$MASON/packages/vue-language-server'
+    -- Defer mason (server installer + :Mason UI) off the startup path. LSP
+    -- itself is enabled eagerly below, so already-installed servers attach
+    -- immediately; mason only needs to run to install any missing servers,
+    -- which can wait until the first real file is opened.
+    vim.api.nvim_create_autocmd('FileType', {
+      once = true,
+      callback = vim.schedule_wrap(function()
+        require('mason').setup {}
+        require('mason-lspconfig').setup {
+          automatic_enable = { exclude = { 'rust_analyzer' } },
+          ensure_installed = servers,
+        }
+      end),
+    })
 
-      local servers = {
-        bashls = {},
-        lua_ls = {
-          settings = {
-            Lua = {
-              workspace = {
-                -- Add Neovim's runtime files for lsp completions
-                library = vim.api.nvim_get_runtime_file('', true),
-              },
-              diagnostics = {
-                globals = { 'vim' },
-              },
-            },
-          },
-        },
+    vim.lsp.enable(servers)
 
-        html = {},
-        cssls = {},
-        tailwindcss = {
-          filetypes = { 'templ', 'javascript', 'typescript', 'react', 'vue', 'html' },
-          init_options = { userLanguages = { templ = 'html' } },
-        },
-        ts_ls = {
-          filetypes = { 'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue' },
-          root_markers = { 'package.json', 'tsconfig.json' },
-          init_options = {
-            plugins = {
-              {
-                name = '@vue/typescript-plugin',
-                location = vue_language_server_path .. '/node_modules/@vue/language-server',
-                languages = { 'vue' },
-                configNamespace = 'typescript',
-                enableForWorkspaceTypeScriptVersions = true,
-              },
-            },
-            preferences = {
-              importModuleSpecifierEnding = 'js',
-              importModuleSpecifierPreference = 'shortest',
-              includeCompletionsForImportStatements = true,
-              includeCompletionsForModuleExports = true,
-              updateImportsOnFileMove = { enabled = 'always' },
-              suggest = {
-                completeFunctionCalls = true,
-              },
-            },
-          },
-        },
-        vue_ls = {
-          filetypes = { 'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue' },
-          root_markers = { 'package.json', 'tsconfig.json' },
-          init_options = {
-            vue = {
-              hybridMode = true,
-            },
-          },
-        },
-        astro = {},
-        gopls = {},
-        templ = function()
-          vim.filetype.add {
-            extension = {
-              templ = 'templ',
-            },
-          }
-          return {
-            cmd = { 'templ', 'lsp' },
-            filetypes = { 'templ' },
-            root_markers = { 'go.mod' },
-            settings = {},
-          }
-        end,
-
-        eslint = {
-          root_markers = { 'eslint.config.js', 'eslint.config.ts', 'eslint.config.json', '.eslintrc' },
-        },
-
-        intelephense = {
-          root_markers = { 'composer.json' },
-        },
-      }
-
-      local ensure_installed = vim.tbl_keys(servers)
-
-      require('mason-lspconfig').setup {
-        automatic_enable = { exclude = { 'rust_analyzer' } },
-        ensure_installed = ensure_installed,
-      }
-
-      for name, opts in pairs(servers) do
-        vim.lsp.enable(name)
-        if type(opts) == 'function' then
-          vim.lsp.config(name, opts())
-        else
-          vim.lsp.config(name, opts)
+    vim.api.nvim_create_autocmd('LspAttach', {
+      group = vim.api.nvim_create_augroup('lsp_attach_maps', { clear = true }),
+      callback = function(ev)
+        -- Enable completion triggered by <c-x><c-o>
+        vim.bo[ev.buf].omnifunc = 'v:lua.vim.lsp.omnifunc'
+        for _, m in ipairs(lsp_maps) do
+          vim.keymap.set(m[1], m[2], m[3], { buffer = ev.buf })
         end
-      end
-
-      -- vim.lsp.config('phpantom', {
-      --   cmd = { 'phpantom_lsp' },
-      --   filetypes = { 'php' },
-      --   root_markers = { 'composer.json', '.git' },
-      -- })
-      -- vim.lsp.enable 'phpantom'
-      --
-      vim.lsp.config('biome', {
-        on_attach = function(client, bufnr)
-          if client.name == 'biome' and is_deno_project(bufnr) then
-            client.stop()
-            return false
-          end
-        end,
-      })
-    end,
-  },
-
-  {
-    'mrcjkb/rustaceanvim',
-    version = '^6',
-    lazy = false,
-    init = function()
-      vim.g.rustaceanvim = {
-        server = {
-          default_settings = {
-            ['rust-analyzer'] = {
-              checkOnSave = { command = 'clippy' },
-              cargo = { allFeatures = true },
-              inlayHints = {
-                closureReturnTypeHints = { enable = 'always' },
-                lifetimeElisionHints = { enable = 'always', useParameterNames = true },
-              },
-            },
-          },
-          on_attach = function(_, bufnr)
-            local opts = { buffer = bufnr }
-            -- Override generic LSP maps with Rust-specific equivalents
-            vim.keymap.set('n', 'K', function() vim.cmd.RustLsp { 'hover', 'actions' } end, opts)
-            vim.keymap.set({ 'n', 'v', 'i', 'x' }, '<C-.>', function() vim.cmd.RustLsp 'codeAction' end, opts)
-            vim.keymap.set({ 'n', 'v', 'i', 'x' }, '<F3>', function() vim.cmd.RustLsp 'codeAction' end, opts)
-            -- Rust-specific extras
-            vim.keymap.set('n', '<leader>re', function() vim.cmd.RustLsp 'expandMacro' end, opts)
-            vim.keymap.set('n', '<leader>rr', function() vim.cmd.RustLsp 'runnables' end, opts)
-            vim.keymap.set('n', '<leader>rt', function() vim.cmd.RustLsp 'testables' end, opts)
-            vim.keymap.set('n', '<leader>rod', function() vim.cmd.RustLsp 'openDocs' end, opts)
-          end,
-        },
-      }
-    end,
-  },
+      end,
+    })
+  end,
 }

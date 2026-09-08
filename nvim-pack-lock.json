@@ -13,6 +13,10 @@
       "rev": "619363c30309d29ffa631e67c8183f2a72caa373",
       "src": "https://github.com/stevearc/conform.nvim"
     },
+    "deepwhite.nvim": {
+      "rev": "ccad56bb5eb7d29258980cfc0a716eb87bcad69e",
+      "src": "https://github.com/Verf/deepwhite.nvim"
+    },
     "editorconfig-vim": {
       "rev": "c0227885a06b155d5aa5465e08b9800e8c939f70",
       "src": "https://github.com/editorconfig/editorconfig-vim"
@@ -24,6 +28,22 @@
     "gitsigns.nvim": {
       "rev": "25050e4ed39e628282831d4cbecb1850454ce915",
       "src": "https://github.com/lewis6991/gitsigns.nvim"
+    },
+    "iceberg.vim": {
+      "rev": "23835d5ed696436f716cbfdb56a93a7850fe3b18",
+      "src": "https://github.com/cocopon/iceberg.vim"
+    },
+    "jellybeans-nvim": {
+      "rev": "d5989265b5256cb296b5772c73e57490e84f69b1",
+      "src": "https://github.com/metalelf0/jellybeans-nvim"
+    },
+    "kanso.nvim": {
+      "rev": "1afbbb449aa0254823dbe1932e3cbb51886ff9fe",
+      "src": "https://github.com/webhooked/kanso.nvim"
+    },
+    "lackluster.nvim": {
+      "rev": "70dd682e564784893b984deb51dd5ddd263c8cc7",
+      "src": "https://github.com/slugbyte/lackluster.nvim"
     },
     "lazygit.nvim": {
       "rev": "a04ad0dbc725134edbee3a5eea29290976695357",
@@ -37,6 +57,10 @@
       "rev": "6663abaa8c6b8037f6046b2e2b40f24aea1f804e",
       "src": "https://github.com/camspiers/luarocks"
     },
+    "lush.nvim": {
+      "rev": "9c60ec2279d62487d942ce095e49006af28eed6e",
+      "src": "https://github.com/rktjmp/lush.nvim"
+    },
     "mason-lspconfig.nvim": {
       "rev": "21c5b3ebeaa0412e28096bb0701434c51c1fbf76",
       "src": "https://github.com/mason-org/mason-lspconfig.nvim"
@@ -45,6 +69,14 @@
       "rev": "2a6940af80375532e5e9e7c1f2fc6319a1b7a69d",
       "src": "https://github.com/mason-org/mason.nvim"
     },
+    "mellifluous.nvim": {
+      "rev": "ec0575bdb63594c5e7fba6eb9607b009aa1fb74e",
+      "src": "https://github.com/ramojus/mellifluous.nvim"
+    },
+    "modus-themes.nvim": {
+      "rev": "17a64464c27c1be605adca13dbe48f2f402fe107",
+      "src": "https://github.com/miikanissi/modus-themes.nvim"
+    },
     "neodev.nvim": {
       "rev": "46aa467dca16cf3dfe27098042402066d2ae242d",
       "src": "https://github.com/folke/neodev.nvim"
@@ -52,6 +84,10 @@
     "nvim-bqf": {
       "rev": "c282a62bec6c0621a1ef5132aa3f4c9fc4dcc2c7",
       "src": "https://github.com/kevinhwang91/nvim-bqf"
+    },
+    "nvim-dev-container": {
+      "rev": "365b4c815339d42133829006dce3e5f8b182b771",
+      "src": "https://github.com/esensar/nvim-dev-container"
     },
     "nvim-lint": {
       "rev": "4b7957daf4b81eb578114bd6fcf20b6f5a2b59e8",
@@ -78,6 +114,10 @@
       "rev": "74b06c6c75e4eeb3108ec01852001636d85a932b",
       "src": "https://github.com/nvim-lua/plenary.nvim"
     },
+    "rasmus.nvim": {
+      "rev": "49f7ee7bf3eb00db52c77f84b15bc69f318bafc1",
+      "src": "https://github.com/kvrohit/rasmus.nvim"
+    },
     "render-markdown.nvim": {
       "rev": "f422cb5c6855f150e2ddcfaf44e7157b98b34f6a",
       "src": "https://github.com/MeanderingProgrammer/render-markdown.nvim"
@@ -93,11 +133,15 @@
     },
     "snap": {
       "rev": "162ecd7fdcaf29c00021599fedfbe4c67898b57c",
-      "src": "https://github.com/sjwalker189/snap"
+      "src": "https://github.com/camspiers/snap"
     },
     "stickybuf.nvim": {
       "rev": "9e00edfd94baef4a78b4248ae8309a2d4943f118",
       "src": "https://github.com/stevearc/stickybuf.nvim"
+    },
+    "token": {
+      "rev": "b2a009c35cb5d992495ce4818439d19964385f96",
+      "src": "https://github.com/ThorstenRhau/token"
     },
     "tree-sitter-test": {
       "rev": "76b419f178da018c29d3004fcbf14f755649eb58",
@@ -114,6 +158,18 @@
     "vim-dadbod-ui": {
       "rev": "07e92e22114cc5b1ba4938d99897d85b58e20475",
       "src": "https://github.com/kristijanhusak/vim-dadbod-ui"
+    },
+    "vim-nebula": {
+      "rev": "5945d22973dc90b76df6b819a98e1cdcf1266ef0",
+      "src": "https://github.com/stillwwater/vim-nebula"
+    },
+    "vim-reason-plus": {
+      "rev": "c11a2940f8f3e3915e472c366fe460b0fe008bac",
+      "src": "https://github.com/reasonml-editor/vim-reason-plus"
+    },
+    "zenbones.nvim": {
+      "rev": "8304d8df9b823ff11e103afa62f38c39f534abe6",
+      "src": "https://github.com/zenbones-theme/zenbones.nvim"
     }
   }
 }

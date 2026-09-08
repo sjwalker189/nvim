@@ -11,9 +11,18 @@ local servers = {
   'vue_ls',
   'astro',
   'gopls',
+  'golangci_lint_ls',
   'templ',
   'eslint',
   'intelephense',
+  'ols',
+}
+
+-- Servers installed outside mason (their config lives in lsp/<name>.lua). These
+-- are enabled directly but kept out of mason's ensure_installed:
+--   ocamllsp -- opam-managed; must be built against the project's OCaml switch.
+local manual_servers = {
+  'ocamllsp',
 }
 
 -- Buffer-local LSP keymaps, wired on attach. { mode, lhs, rhs }
@@ -59,13 +68,14 @@ return {
       callback = vim.schedule_wrap(function()
         require('mason').setup {}
         require('mason-lspconfig').setup {
-          automatic_enable = { exclude = { 'rust_analyzer' } },
+          automatic_enable = { exclude = { 'rust_analyzer', 'ocamllsp' } },
           ensure_installed = servers,
         }
       end),
     })
 
     vim.lsp.enable(servers)
+    vim.lsp.enable(manual_servers)
 
     vim.api.nvim_create_autocmd('LspAttach', {
       group = vim.api.nvim_create_augroup('lsp_attach_maps', { clear = true }),

@@ -15,13 +15,22 @@ return {
     require('stickybuf').setup {}
     require('neoclip').setup {}
     require('Comment').setup {}
-    require('render-markdown').setup {}
+    require('render-markdown').setup {
+      anti_conceal = { enabled = false },
+    }
     require('lualine').setup {
       globalstatus = true,
       sections = {
         lualine_a = { 'mode' },
         lualine_b = { 'branch', 'diff', 'diagnostics' },
-        lualine_c = { 'lsp_status', { 'filename', path = 1 } },
+        lualine_c = {
+          'lsp_status',
+          -- Whole-project phpstan: spinner while it runs, error count when idle.
+          -- The builtin `diagnostics` component above only counts the current
+          -- buffer, and most of a project run's results are in other files.
+          { require('phpstan').status, cond = require('phpstan').active },
+          { 'filename', path = 1 },
+        },
         lualine_x = { 'encoding', 'fileformat', 'filetype' },
         lualine_y = { 'progress' },
         lualine_z = { 'location' },

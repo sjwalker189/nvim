@@ -36,7 +36,6 @@ vim.opt.swapfile = false
 vim.opt.wrap = false
 vim.opt.laststatus = 3
 
-
 -- [[ Keymaps ]]
 
 vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Show diagnostic [E]rror messages' })
@@ -82,6 +81,8 @@ vim.filetype.add {
     ['.*/test/corpus/.*%.txt'] = 'test',
   },
 }
+
+vim.lsp.enable 'gloss'
 
 -- [[ Plugins ]]
 

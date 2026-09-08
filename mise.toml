@@ -26,3 +26,8 @@ stylua = "latest"
 shfmt = "latest"
 "npm:oxfmt" = "latest"
 "go:golang.org/x/tools/cmd/goimports" = "latest"
+# Not the language server (mason installs golangci-lint-langserver); this is the
+# binary that server — and conform's `golangci-lint fmt --stdin` — shells out to.
+# A project pinning its own version in mise.toml wins over this one, since both
+# are invoked through `mise exec --`.
+golangci-lint = "latest"

@@ -14,33 +14,40 @@ local ignore_paths = {
   -- },
 }
 
-local function snap_directory_grep(snap)
+-- Pick a directory under the project root, then grep inside it. `grep_in` builds
+-- the second-stage producer; it's passed in so this shares the rooted ripgrep
+-- wrapper defined in setup() rather than snap's own (see the note there).
+local function snap_directory_grep(snap, grep_in)
   local fd_args = { '--type', 'd', '-H', '-E', '.git', '-E', 'node_modules', '-E', 'vendor' }
-  local dir_picker = snap.config.file {
-    prompt = 'Select Directory> ',
-    producer = 'fd.file',
-    args = fd_args,
-    select = function(yield)
-      -- 'yield' is an iterator in snap. Calling it gets the selected item.
-      local dir = yield()
 
-      -- Exit if the user pressed Escape
-      if not dir then
-        return
-      end
+  return function()
+    local root = require('project').root()
 
-      -- Step 2: Create the grep picker for the chosen directory
-      local grep_picker = snap.config.vimgrep {
-        prompt = 'Grep in ' .. dir .. '> ',
-        -- Pass the directory path as an argument so ripgrep only searches there
-        args = { dir },
-      }
+    snap.config.file {
+      prompt = 'Select Directory> ',
+      producer = 'fd.file',
+      -- fd.file.args takes no cwd (unlike ripgrep's), so scope it with fd's own
+      -- --search-path. An absolute search path also makes fd emit absolute
+      -- results, which the grep below needs.
+      args = vim.list_extend(vim.deepcopy(fd_args), { '--search-path', root }),
+      select = function(yield)
+        -- 'yield' is an iterator in snap. Calling it gets the selected item.
+        local dir = yield()
 
-      grep_picker()
-    end,
-  }
+        -- Exit if the user pressed Escape
+        if not dir then
+          return
+        end
 
-  return dir_picker
+        -- `dir` is absolute (see --search-path above), so grep is rooted there.
+        dir = tostring(dir):gsub('/$', '')
+        snap.config.vimgrep {
+          prompt = 'Grep in ' .. dir .. '> ',
+          producer = grep_in(dir),
+        }()
+      end,
+    }()
+  end
 end
 
 local function insert_ignore_pattern(t, pattern)
@@ -123,6 +130,12 @@ return {
           end
           on_choice(selection.value, selection.index)
         end),
+        window = function()
+          return {
+            width = 0.5,
+            height = 0.5,
+          }
+        end,
       }
     end
 
@@ -137,45 +150,131 @@ return {
       limit = 20000,
     }
 
-    local cwd = vim.loop.cwd()
-
-    local search_patterns = { '--hidden' }
-
     local search_defaults = {
       '!.git/*',
       '!node_modules/*',
       '!vendor/*',
     }
 
-    for _, path in ipairs(search_defaults) do
-      insert_ignore_pattern(search_patterns, path)
+    -- Built per invocation rather than once at startup, so the ignore rules track
+    -- the buffer's project instead of wherever nvim happened to be launched.
+    local function search_args(root)
+      local search_patterns = { '--hidden' }
+
+      for _, path in ipairs(search_defaults) do
+        insert_ignore_pattern(search_patterns, path)
+      end
+
+      -- Apply any custom ignore path rules defined for the current project
+      for path, patterns in pairs(ignore_paths) do
+        if root ~= '' and root:sub(-#path) == path then
+          for _, pattern in pairs(patterns) do
+            insert_ignore_pattern(search_patterns, pattern)
+          end
+        end
+      end
+
+      return search_patterns
     end
 
-    -- Apply any custom ignore path rules defined for the current directory
-    for path, patterns in pairs(ignore_paths) do
-      if cwd ~= nil and cwd ~= '' and cwd:sub(-#path) then
-        for _, pattern in pairs(patterns) do
-          insert_ignore_pattern(search_patterns, pattern)
+    local project = require 'project'
+    local snap_io = snap.get 'common.io'
+    local snap_str = snap.get 'common.string'
+
+    -- Snap's own ripgrep producers take a cwd, but passing one flips them into
+    -- `absolute` mode -- and that branch is broken upstream: producer/ripgrep/
+    -- general.lua binds `local string = snap.get("common.string")`, shadowing
+    -- Lua's `string`, so `string.format` is nil and the producer coroutine dies
+    -- silently with zero results. Reimplement the spawn loop here so the search
+    -- can be rooted at the project and still return usable absolute paths.
+    --
+    -- `root` is resolved by the caller, before the coroutine starts: inside a
+    -- producer, vim calls must go through snap.sync.
+    local function rg_producer(root, args, with_filter)
+      return function(request)
+        local argv = vim.deepcopy(args)
+        if with_filter then
+          -- ripgrep wants the pattern last, after the flags.
+          table.insert(argv, request.filter)
+        end
+
+        for data, err, cancel in snap_io.spawn('rg', argv, root) do
+          if request.canceled() then
+            cancel()
+            coroutine.yield(nil)
+          elseif err ~= '' then
+            coroutine.yield(nil)
+          elseif data == '' then
+            snap.continue()
+          else
+            -- Prefix with the root so selections resolve regardless of cwd.
+            coroutine.yield(vim.tbl_map(function(line)
+              return root .. '/' .. line
+            end, snap_str.split(data)))
+          end
         end
       end
     end
 
+    local function rg_files()
+      local root = project.root()
+      local args = { '--line-buffered', '--files' }
+      vim.list_extend(args, search_args(root))
+      return rg_producer(root, args, false)
+    end
+
+    local function rg_grep(root)
+      root = root or project.root()
+      local args = { '--line-buffered', '-M', '100', '--vimgrep' }
+      vim.list_extend(args, search_args(root))
+      return rg_producer(root, args, true)
+    end
+
+    -- producer.git.file.args accepts no cwd (and its body reads an undefined
+    -- upvalue), so shell out directly. The listing is built here, at keypress
+    -- time, rather than inside the producer: vim.system():wait() cannot run in
+    -- snap's producer coroutine and silently yields nothing if you try.
+    -- snap.config.file applies its own fuzzy consumer, so don't wrap in `filter`.
+    local function git_files()
+      local root = project.root()
+      local out = vim.system({ 'git', '-C', root, 'ls-files', '--full-name' }):wait()
+      local list = {}
+      if out.code == 0 then
+        list = vim.tbl_map(function(p)
+          return root .. '/' .. p
+        end, vim.split(vim.trim(out.stdout), '\n', { trimempty = true }))
+      end
+      return function()
+        return list
+      end
+    end
+
     snap.maps {
-      { '<leader>fw', vimgrep { filter_with = 'cword' }, { command = 'currentwordgrep' } },
+      {
+        '<leader>fw',
+        function()
+          vimgrep { producer = rg_grep(), filter_with = 'cword' }()
+        end,
+        { command = 'currentwordgrep' },
+      },
       {
         '<leader>ff',
-        file {
-          producer = 'ripgrep.file',
-          args = search_patterns,
-          command = 'files',
-        },
+        function()
+          file { producer = rg_files(), command = 'files' }()
+        end,
       },
       { '<leader>fr', file { producer = 'vim.oldfile' }, { command = 'oldfiles' } },
-      { '<leader>fg', vimgrep { producer = 'ripgrep.vimgrep', args = search_patterns }, { command = 'grep' } },
+      {
+        '<leader>fg',
+        function()
+          vimgrep { producer = rg_grep() }()
+        end,
+        { command = 'grep' },
+      },
       { '<leader>fb', file { producer = 'vim.buffer' }, { command = 'buffers' } },
       {
         '<leader>fid',
-        snap_directory_grep(snap),
+        snap_directory_grep(snap, rg_grep),
         { desc = 'Grep in directory' },
       }, -- Find in dir
 
@@ -191,7 +290,13 @@ return {
       },
 
       -- Grep the current visual selection.
-      { '<leader>fm', vimgrep { filter_with = 'selection' }, { modes = 'v', desc = 'Grep selection' } },
+      {
+        '<leader>fm',
+        function()
+          vimgrep { producer = rg_grep(), filter_with = 'selection' }()
+        end,
+        { modes = 'v', desc = 'Grep selection' },
+      },
 
       -- Marks
       {
@@ -231,7 +336,13 @@ return {
       },
 
       -- Git files
-      { '<leader>fG', file { producer = 'git.file' }, { command = 'git.files', desc = 'Git files' } },
+      {
+        '<leader>fG',
+        function()
+          file { producer = git_files() }()
+        end,
+        { command = 'git.files', desc = 'Git files' },
+      },
 
       -- Git log: pick a commit, then choose an action on it.
       {

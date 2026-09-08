@@ -14,7 +14,7 @@ return {
       },
     },
     preferences = {
-      importModuleSpecifierEnding = 'js',
+      importModuleSpecifierEnding = 'auto',
       importModuleSpecifierPreference = 'shortest',
       includeCompletionsForImportStatements = true,
       includeCompletionsForModuleExports = true,

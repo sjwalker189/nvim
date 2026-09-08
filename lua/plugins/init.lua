@@ -37,11 +37,13 @@ local modules = {
   'plugins.blink',
   'plugins.lsp',
   'plugins.rust',
+  'plugins.reason',
   'plugins.conform',
   'plugins.git',
   'plugins.sql',
   'plugins.snap',
   'plugins.tstest',
+  'plugins.devcontainer',
 }
 
 local specs = {}

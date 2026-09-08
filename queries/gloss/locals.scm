@@ -1,0 +1,1 @@
+/Users/swalker/dev/gloss/tree-sitter-gloss/queries/locals.scm

@@ -1,5 +1,5 @@
-local dark_theme = 'rose-pine'
-local light_theme = 'rose-pine'
+local dark_theme = 'kanso'
+local light_theme = 'kanso'
 local gsettings_key = 'org.gnome.desktop.interface color-scheme'
 
 local function hl_undercurl()
@@ -14,6 +14,26 @@ local function hl_undercurl()
   for _, hl in ipairs(hl_groups) do
     vim.cmd.highlight(hl .. ' gui=undercurl')
   end
+end
+
+-- nebula's default Visual highlight is a bright purple bg with a forced
+-- near-white fg, which washes out selected text. Keep the purple hue but
+-- dilute it ~30% into the background (like lowering its opacity), and drop
+-- the forced fg so the underlying syntax colors stay readable.
+local function hl_visual_selection()
+  local bg = vim.o.background == 'dark' and '#352757' or '#ddc9f2'
+  vim.api.nvim_set_hl(0, 'Visual', { bg = bg })
+  vim.api.nvim_set_hl(0, 'VisualNOS', { bg = bg })
+end
+
+-- kanso defines WinSeparator with fg = bg_m3, which is the same colour as the
+-- normal background in both ink and pearl, so split borders are invisible.
+-- With laststatus=3 there is no per-window statusline either, leaving nothing
+-- to mark the divide. Paint the separator in a mid-tone instead.
+local function hl_win_separator()
+  local fg = vim.o.background == 'dark' and '#4b4e57' or '#9f9f99'
+  vim.api.nvim_set_hl(0, 'WinSeparator', { fg = fg })
+  vim.api.nvim_set_hl(0, 'VertSplit', { link = 'WinSeparator' })
 end
 
 local function update_colorscheme(scheme_value)
@@ -41,6 +61,8 @@ local function update_colorscheme(scheme_value)
   end
 
   hl_undercurl()
+  hl_visual_selection()
+  hl_win_separator()
 end
 
 local function monitor_callback(_, data, _)
@@ -68,93 +90,32 @@ end
 
 local function switch_colorscheme()
   vim.cmd.highlight 'clear'
-  hl_undercurl()
   if vim.o.background == 'dark' then
     vim.cmd.colorscheme(dark_theme)
   else
     vim.cmd.colorscheme(light_theme)
   end
+  hl_undercurl()
+  hl_visual_selection()
+  hl_win_separator()
 end
 
 return {
   src = {
-        { src = 'https://github.com/rose-pine/neovim', name = 'rose-pine' },
+    { src = 'https://github.com/webhooked/kanso.nvim' },
   },
   setup = function()
     vim.opt.termguicolors = true
 
-    local palette = require 'rose-pine.palette'
-
-    require('rose-pine').setup {
-      variant = 'auto', -- auto, main, moon, or dawn
-      dark_variant = 'main', -- main, moon, or dawn
-      dim_inactive_windows = false,
-      extend_background_behind_borders = true,
-
-      enable = {
-        terminal = true,
-        legacy_highlights = false, -- Improve compatibility for previous versions of Neovim
-        migrations = true, -- Handle deprecated options automatically
+    require('kanso').setup {
+      bold = false,
+      italics = true,
+      undercurl = true,
+      terminalColors = true,
+      background = {
+        dark = 'ink',
+        light = 'pearl',
       },
-
-      styles = {
-        bold = false,
-        italic = false,
-        transparency = false,
-      },
-
-      groups = {
-        border = 'muted',
-        link = 'iris',
-        panel = 'surface',
-
-        error = 'love',
-        hint = 'iris',
-        info = 'foam',
-        note = 'pine',
-        todo = 'rose',
-        warn = 'gold',
-
-        git_add = 'foam',
-        git_change = 'rose',
-        git_delete = 'love',
-        git_dirty = 'rose',
-        git_ignore = 'muted',
-        git_merge = 'iris',
-        git_rename = 'pine',
-        git_stage = 'iris',
-        git_text = 'rose',
-        git_untracked = 'subtle',
-
-        h1 = 'iris',
-        h2 = 'foam',
-        h3 = 'rose',
-        h4 = 'gold',
-        h5 = 'pine',
-        h6 = 'foam',
-      },
-
-      palette = {
-        main = {
-          pine = '#47869e',
-        },
-
-        dawn = {
-          base = '#fbfaf9',
-          gold = '#d48516',
-          rose = '#cb5d57',
-        },
-      },
-
-      -- NOTE: Highlight groups are extended (merged) by default. Disable this
-      -- per group via `inherit = false`
-      highlight_groups = {
-        SnapBorder = { fg = 'muted' },
-      },
-
-      before_highlight = function(group, highlight, palette)
-        hl_undercurl()
-      end,
     }
 
     local theme_augroup = vim.api.nvim_create_augroup('ThemeSwitcher', { clear = true })

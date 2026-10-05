@@ -32,6 +32,7 @@ vim.api.nvim_create_autocmd('PackChanged', {
 -- Order matters: shared deps and colours first, then everything else.
 local modules = {
   'plugins.base',
+  'plugins.oil',
   'plugins.colors',
   'plugins.treesitter',
   'plugins.blink',

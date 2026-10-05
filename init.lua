@@ -6,9 +6,11 @@ package.path = package.path .. ';' .. vim.fn.stdpath 'config' .. '/../nvim-lua/?
 -- [[ Settings ]]
 
 vim.g.mapleader = ' '
-vim.g.netrw_browse_split = 0
-vim.g.netrw_banner = 0
-vim.g.netrw_winsize = 25
+-- oil.nvim is the file explorer; disable both netrw and the builtin read-only
+-- dir listing (:h g:loaded_nvim_dir_plugin) before any directory buffer opens.
+vim.g.loaded_nvim_dir_plugin = 1
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
 
 vim.opt.guicursor = ''
 vim.opt.cursorline = true
@@ -47,7 +49,6 @@ vim.keymap.set('n', '<C-Left>', '<C-w>h', { silent = true, noremap = true })
 vim.keymap.set('n', '<C-Right>', '<C-w>l', { silent = true })
 vim.keymap.set('n', '<C-Up>', '<C-w>k', { silent = true })
 vim.keymap.set('n', '<C-Down>', '<C-w>j', { silent = true })
-vim.keymap.set('n', '-', '<CMD>Ex<CR>', {})
 
 -- [[ Diagnostics ]]
 

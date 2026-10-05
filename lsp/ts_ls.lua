@@ -1,4 +1,10 @@
-local vue_language_server_path = vim.fn.expand '$MASON/packages/vue-language-server'
+-- Mason installs `@vue/typescript-plugin` alongside the Vue language server.
+-- Resolved from stdpath rather than $MASON, which is only set once mason.setup()
+-- has run -- this file is read before that.
+local vue_typescript_plugin = vim.fs.joinpath(
+  vim.fn.stdpath 'data',
+  'mason/packages/vue-language-server/node_modules/@vue/typescript-plugin'
+)
 
 return {
   filetypes = { 'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue' },
@@ -7,7 +13,7 @@ return {
     plugins = {
       {
         name = '@vue/typescript-plugin',
-        location = vue_language_server_path .. '/node_modules/@vue/language-server',
+        location = vue_typescript_plugin,
         languages = { 'vue' },
         configNamespace = 'typescript',
         enableForWorkspaceTypeScriptVersions = true,
@@ -19,9 +25,7 @@ return {
       includeCompletionsForImportStatements = true,
       includeCompletionsForModuleExports = true,
       updateImportsOnFileMove = { enabled = 'always' },
-      suggest = {
-        completeFunctionCalls = true,
-      },
+      completeFunctionCalls = true,
     },
   },
 }
